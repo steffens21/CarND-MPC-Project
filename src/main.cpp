@@ -77,7 +77,7 @@ int main() {
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
     string sdata = string(data).substr(0, length);
-    cout << sdata << endl;
+    //cout << sdata << endl;
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
       if (s != "") {
@@ -108,10 +108,10 @@ int main() {
           for(int i = 0; i < ptsy.size(); i++) {
 	    ptsy_trans[i] = (ptsy[i]- py) * cos(psi) - (ptsx[i] - px) * sin(psi);
 	  }
-	  auto coeffs = polyfit(ptsx, ptsy, 3);
+	  auto coeffs = polyfit(ptsx_trans, ptsy_trans, 3);
 	  // The cross track error is calculated by evaluating at polynomial at x, f(x)
 	  // and subtracting y.
-	  double cte = polyeval(coeffs, 0) - y;
+	  double cte = polyeval(coeffs, 0) - py;
 	  // Due to the sign starting at 0, the orientation error is -f'(x).
 	  // derivative of coeffs[0] + coeffs[1] * x -> coeffs[1]
 	  double epsi = -atan(coeffs[1]);
