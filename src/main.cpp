@@ -91,15 +91,31 @@ int main() {
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
-
+          double steer = j[1]["steering_angle"];
+          double throttle = j[1]["throttle"];
           /*
           * TODO: Calculate steeering angle and throttle using MPC.
           *
           * Both are in between [-1, 1].
           *
           */
-          double steer_value;
-          double throttle_value;
+	  // TODO: maybe transform ptsx and ptsy w.r.t. vehicle position and orientation.
+	  auto coeffs = polyfit(ptsx, ptsy, 3);
+	  // The cross track error is calculated by evaluating at polynomial at x, f(x)
+	  // and subtracting y.
+	  double cte = polyeval(coeffs, 0) - y;
+	  // Due to the sign starting at 0, the orientation error is -f'(x).
+	  // derivative of coeffs[0] + coeffs[1] * x -> coeffs[1]
+	  double epsi = -atan(coeffs[1]);
+	  std::cout << "Cte: " << cte << " Epsi: " << epsi;
+
+	  Eigen::VectorXd state(6);
+	  state << x, y, psi, v, cte, epsi, steer, throttle; // maybe: -steer
+
+	  auto vars = mpc.Solve(state, coeffs);
+
+          double steer_value = vars[0]; // maybe: -vars[0]
+          double throttle_value = vars[1];
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
@@ -111,6 +127,17 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
+	  mpc_x_vals.push_back(vars[2]);
+          mpc_x_vals.push_back(vars[3] + mpc_x_vals[mpc_x_vals.size()-1]);
+          mpc_x_vals.push_back(vars[4] + mpc_x_vals[mpc_x_vals.size()-1]);
+          mpc_x_vals.push_back(vars[5] + mpc_x_vals[mpc_x_vals.size()-1]);
+          mpc_x_vals.push_back(vars[6] + mpc_x_vals[mpc_x_vals.size()-1]);
+
+          mpc_y_vals.push_back(vars[7]);
+          mpc_y_vals.push_back(vars[8] + mpc_y_vals[mpc_y_vals.size()-1]);
+          mpc_y_vals.push_back(vars[9] + mpc_y_vals[mpc_y_vals.size()-1]);
+          mpc_y_vals.push_back(vars[10] + mpc_y_vals[mpc_y_vals.size()-1]);
+          mpc_y_vals.push_back(vars[11] + mpc_y_vals[mpc_y_vals.size()-1]);
 
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
@@ -125,6 +152,10 @@ int main() {
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
 
+	  for(int i = 0; i<  100; i+=10) {
+	    next_x_vals.push_back(i);
+	    next_y_vals.push_back(polyeval(coeffs, i));
+          }
 
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
