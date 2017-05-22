@@ -100,6 +100,14 @@ int main() {
           *
           */
 	  // TODO: maybe transform ptsx and ptsy w.r.t. vehicle position and orientation.
+	  Eigen::VectorXd ptsx_trans = Eigen::VectorXd(ptsx.size());
+          for(int i = 0; i < ptsx.size(); i++) {
+	    ptsx_trans[i] = (ptsx[i] - px) * cos(psi) + (ptsy[i] - py) * sin(psi);
+	  }
+	  Eigen::VectorXd ptsy_trans = Eigen::VectorXd(ptsy.size());
+          for(int i = 0; i < ptsy.size(); i++) {
+	    ptsy_trans[i] = (ptsy[i]- py) * cos(psi) - (ptsx[i] - px) * sin(psi);
+	  }
 	  auto coeffs = polyfit(ptsx, ptsy, 3);
 	  // The cross track error is calculated by evaluating at polynomial at x, f(x)
 	  // and subtracting y.
@@ -110,7 +118,7 @@ int main() {
 	  std::cout << "Cte: " << cte << " Epsi: " << epsi;
 
 	  Eigen::VectorXd state(6);
-	  state << x, y, psi, v, cte, epsi, steer, throttle; // maybe: -steer
+	  state << px, py, psi, v, cte, epsi, steer, throttle; // maybe: -steer
 
 	  auto vars = mpc.Solve(state, coeffs);
 
