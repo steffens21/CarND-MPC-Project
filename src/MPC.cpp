@@ -71,7 +71,7 @@ class FG_eval {
 
     // Minimize the value gap between sequential actuations.
     for (int i = 0; i < N - 2; i++) {
-      fg[0] += 50 * CppAD::pow(vars[delta_start + i + 1] - vars[delta_start + i], 2);
+      fg[0] += 500 * CppAD::pow(vars[delta_start + i + 1] - vars[delta_start + i], 2);
       fg[0] += 10 * CppAD::pow(vars[a_start + i + 1] - vars[a_start + i], 2);
     }
 
@@ -194,7 +194,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // NOTE: Feel free to change this to something else.
   for (int i = a_start; i < n_vars; i++) {
     vars_lowerbound[i] = -1.0;
-    vars_upperbound[i] = .5; // 1.0
+    vars_upperbound[i] = 1.0;
   }
 
   // Lower and upper limits for the constraints
@@ -264,7 +264,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   vector<double> results ;
   results.push_back(solution.x[delta_start]) ;
   results.push_back(solution.x[a_start]) ;
-  
+
   results.push_back(solution.x[psi_start + 1]) ;
   results.push_back(solution.x[v_start + 1]) ;
   results.push_back(solution.x[cte_start + 1]) ;
@@ -277,11 +277,5 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   }
   return results;
 }
-  /*
-  return {solution.x[x_start + 1],   solution.x[y_start + 1],
-      solution.x[psi_start + 1], solution.x[v_start + 1],
-      solution.x[cte_start + 1], solution.x[epsi_start + 1],
-      solution.x[delta_start],   solution.x[a_start]};
-  }
-  */
+
 
