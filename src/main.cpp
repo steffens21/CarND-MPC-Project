@@ -116,15 +116,19 @@ int main() {
           double epsi = atan(coeffs[1]);
           std::cout << "Cte: " << cte << " Epsi: " << epsi << std::endl;;
 
-          // TODO: maybe consider latency here
+          // consider latency here
+          const double lat_sec = 0.1;
+          const double Lf = 2.67;
+          double lat_px = 0 + v * lat_sec;  // 0, since we think in car coordinates
+          double lat_psi = -v * steer / Lf * lat_sec;
 
           Eigen::VectorXd state(6);
-          state << 0, 0, 0, v, cte, epsi; //, steer, throttle; // maybe: -steer
+          state << lat_px, 0, lat_psi, v, cte, epsi; //, steer, throttle; // maybe: -steer
           // px, py, psi, v, cte, epsi
 
           auto vars = mpc.Solve(state, coeffs);
 
-          double steer_value = -vars[0]; // maybe: -vars[0]
+          double steer_value = -vars[0];
           double throttle_value = vars[1];
 
           json msgJson;
@@ -141,23 +145,13 @@ int main() {
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
-          for(int i = 0; i < ptsx_trans.size(); i++) {
-            mpc_x_vals.push_back(ptsx_trans[i]);
-            mpc_y_vals.push_back(polyeval(coeffs, ptsx_trans[i]));
-          }
-          /*
-          mpc_x_vals.push_back(vars[2]);
-          mpc_x_vals.push_back(vars[3] + mpc_x_vals[mpc_x_vals.size()-1]);
-          mpc_x_vals.push_back(vars[4] + mpc_x_vals[mpc_x_vals.size()-1]);
-          mpc_x_vals.push_back(vars[5] + mpc_x_vals[mpc_x_vals.size()-1]);
-          mpc_x_vals.push_back(vars[6] + mpc_x_vals[mpc_x_vals.size()-1]);
+          // vars[6] is first x coord
 
-          mpc_y_vals.push_back(vars[7]);
-          mpc_y_vals.push_back(vars[8] + mpc_y_vals[mpc_y_vals.size()-1]);
-          mpc_y_vals.push_back(vars[9] + mpc_y_vals[mpc_y_vals.size()-1]);
-          mpc_y_vals.push_back(vars[10] + mpc_y_vals[mpc_y_vals.size()-1]);
-          mpc_y_vals.push_back(vars[11] + mpc_y_vals[mpc_y_vals.size()-1]);
-          */
+          for(int i = 6; i < 2 * ptsx_trans.size() + 6; i+=2) {
+            mpc_x_vals.push_back(vars[6 + i]);
+            mpc_y_vals.push_back(vars[7 + i]);
+          }
+
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
 
@@ -187,7 +181,7 @@ int main() {
           //
           // NOTE: REMEMBER TO SET THIS TO 100 MILLISECONDS BEFORE
           // SUBMITTING.
-          this_thread::sleep_for(chrono::milliseconds(0));
+          this_thread::sleep_for(chrono::milliseconds(100));
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }
       } else {
