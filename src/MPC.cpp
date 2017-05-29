@@ -7,7 +7,7 @@ using CppAD::AD;
 
 // Set the timestep length and duration
 size_t N = 10;
-double dt = 0.05;
+double dt = 0.02;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -133,10 +133,8 @@ class FG_eval {
       fg[2 + y_start + i] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
       fg[2 + psi_start + i] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
       fg[2 + v_start + i] = v1 - (v0 + a0 * dt);
-      fg[2 + cte_start + i] =
-	cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
-      fg[2 + epsi_start + i] =
-	epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
+      fg[2 + cte_start + i] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
+      fg[2 + epsi_start + i] = epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
     }
   }
 };
@@ -160,13 +158,13 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   double cte = state[4];
   double epsi = state[5];
   
-  // TODO: Set the number of model variables (includes both states and inputs).
+  // Set the number of model variables (includes both states and inputs).
   // For example: If the state is a 4 element vector, the actuators is a 2
   // element vector and there are 10 timesteps. The number of variables is:
   //
   // 4 * 10 + 2 * 9
   size_t n_vars = N * 6 + (N - 1) * 2;
-  // TODO: Set the number of constraints
+  // Set the number of constraints
   size_t n_constraints = N * 6;
 
   // Initial value of the independent variables.
@@ -260,13 +258,32 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   auto cost = solution.obj_value;
   std::cout << "Cost " << cost << std::endl;
 
-  // TODO: Return the first actuator values. The variables can be accessed with
+  // Return the first actuator values. The variables can be accessed with
   // `solution.x[i]`.
   //
   // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
   // creates a 2 element double vector.
+  vector<double> results ;
+  results.push_back(solution.x[delta_start]) ;
+  results.push_back(solution.x[a_start]) ;
+  
+  results.push_back(solution.x[psi_start + 1]) ;
+  results.push_back(solution.x[v_start + 1]) ;
+  results.push_back(solution.x[cte_start + 1]) ;
+  results.push_back(solution.x[epsi_start + 1]) ;
+
+
+  for (int i = 0 ;  i < N - 1  ;  i++) {
+    results.push_back(solution.x[x_start + 1 + i]) ;
+    results.push_back(solution.x[y_start + 1 + i]) ;
+  }
+  return results;
+}
+  /*
   return {solution.x[x_start + 1],   solution.x[y_start + 1],
       solution.x[psi_start + 1], solution.x[v_start + 1],
       solution.x[cte_start + 1], solution.x[epsi_start + 1],
       solution.x[delta_start],   solution.x[a_start]};
-}
+  }
+  */
+
