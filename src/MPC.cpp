@@ -48,11 +48,9 @@ class FG_eval {
 
   typedef CPPAD_TESTVECTOR(AD<double>) ADvector;
   void operator()(ADvector& fg, const ADvector& vars) {
-    // TODO: implement MPC
     // fg a vector of constraints, x is a vector of constraints.
     // NOTE: You'll probably go back and forth between this function and
     // the Solver function below.
-
 
     // The cost is stored is the first element of `fg`.
     // Any additions to the cost should be added to `fg[0]`.
@@ -60,21 +58,21 @@ class FG_eval {
 
     // The part of the cost based on the reference state.
     for (int i = 0; i < N; i++) {
-      fg[0] += CppAD::pow(vars[cte_start + i] - ref_cte, 2);
+      fg[0] += 20 * CppAD::pow(vars[cte_start + i] - ref_cte, 2);
       fg[0] += CppAD::pow(vars[epsi_start + i] - ref_epsi, 2);
       fg[0] += CppAD::pow(vars[v_start + i] - ref_v, 2);
     }
 
     // Minimize the use of actuators.
     for (int i = 0; i < N - 1; i++) {
-      fg[0] += CppAD::pow(vars[delta_start + i], 2);
-      fg[0] += CppAD::pow(vars[a_start + i], 2);
+      fg[0] += 20 * CppAD::pow(vars[delta_start + i], 2);
+      fg[0] += 5 * CppAD::pow(vars[a_start + i], 2);
     }
 
     // Minimize the value gap between sequential actuations.
     for (int i = 0; i < N - 2; i++) {
-      fg[0] += CppAD::pow(vars[delta_start + i + 1] - vars[delta_start + i], 2);
-      fg[0] += CppAD::pow(vars[a_start + i + 1] - vars[a_start + i], 2);
+      fg[0] += 50 * CppAD::pow(vars[delta_start + i + 1] - vars[delta_start + i], 2);
+      fg[0] += 10 * CppAD::pow(vars[a_start + i + 1] - vars[a_start + i], 2);
     }
 
     //
@@ -196,7 +194,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // NOTE: Feel free to change this to something else.
   for (int i = a_start; i < n_vars; i++) {
     vars_lowerbound[i] = -1.0;
-    vars_upperbound[i] = 1.0;
+    vars_upperbound[i] = .5; // 1.0
   }
 
   // Lower and upper limits for the constraints
