@@ -3,6 +3,65 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## Discussion of Project Solution
+
+### The Model
+
+The problem solution uses a kinematic model (as introduced in the lectures).  The 
+state of the model consists of   
+
+   **px, py** :  The position of the car  
+   **psi** :     Vehicle orientation  
+   **v** :       Vehicle velocity  
+   **cte** :     Distance between reference trajectory and vehicle path (*Cross-Track-Error*)  
+   **epsi** :    Desired orientation subtracted from the current orientation (*Orientation Error*)  
+
+Note that in the code we take px, py and psi from the vehicles perspective.  I.e. before factoring in 
+latency all of them are 0.
+
+Our model has 2 actuators:  The steering angle **delta** and the acceleration **a**.
+
+In each step the state is updated via:
+
+      x_[t+1]   = x[t] + v[t] * cos(psi[t]) * dt
+      y_[t+1]   = y[t] + v[t] * sin(psi[t]) * dt
+      psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+      v_[t+1]   = v[t] + a[t] * dt
+      cte[t+1]  = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt
+      epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt
+
+Here, **f** is the polynomial describing the reference line, **psides** is the desired orientation, and 
+**Lf** is the distance between the front of the vehicle and its center of gravity (value was taken from 
+lecture).
+
+### Timestep Length and Elapsed Duration (N & dt)
+
+TODO:
+
+  - First working model with N=10 and dt = 0.02.  Projected trajectory not very long.
+
+Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
+
+### Polynomial Fitting and MPC Preprocessing
+
+We use the function provided in the lecture to fit a polynomial of degree 3 to a series of (x,y) 
+points.  Before fitting the polynomial all points are transformed into "car-perspective" using 
+standard geometric formulas for translation and rotation.
+
+The actuators are not pre-processed.
+
+### Model Predictive Control with Latency
+
+To deal better with  the latency I modified the state which is sent to the solver according to the 
+latency of 100 milliseconds.  I basically "predicted" the state in 100 milliseconds assuming the state
+develops linearly during that short time.
+
+TODO:  This about that more.
+
+The student implements Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.
+
+---
+
 ## Dependencies
 
 * cmake >= 3.5
