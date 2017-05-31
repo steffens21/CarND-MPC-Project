@@ -54,9 +54,9 @@ develops linearly during that short time.
 
 So the px, py, psi part of the state sent to the solver was
 
-   px = 0 + v * latency
-   py = 0
-   psi = -v * steer / Lf * latency
+   px = 0 + v * latency  
+   py = 0  
+   psi = -v * steer / Lf * latency  
 
 
 ---
