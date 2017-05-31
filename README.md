@@ -36,11 +36,7 @@ lecture).
 
 ### Timestep Length and Elapsed Duration (N & dt)
 
-TODO:
-
-  - First working model with N=10 and dt = 0.02.  Projected trajectory not very long.
-
-Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
+I found the first working model (i.e. car made it around the track) with N=10 and dt = 0.02. Generally I experienced that my solution is very feeble when changing N.  E.g. N=20 results in a very wobbly ride.  The smoothest ride I got by setting **N=10** and **dt=0.01**.  This makes the green line in the simulator so short that it is almost entirely hidden by the car.  I don't think this is an issue though.
 
 ### Polynomial Fitting and MPC Preprocessing
 
@@ -56,9 +52,12 @@ To deal better with  the latency I modified the state which is sent to the solve
 latency of 100 milliseconds.  I basically "predicted" the state in 100 milliseconds assuming the state
 develops linearly during that short time.
 
-TODO:  This about that more.
+So the px, py, psi part of the state sent to the solver was
 
-The student implements Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.
+   px = 0 + v * latency
+   py = 0
+   psi = -v * steer / Lf * latency
+
 
 ---
 

@@ -7,7 +7,7 @@ using CppAD::AD;
 
 // Set the timestep length and duration
 size_t N = 10;
-double dt = 0.02;
+double dt = 0.01;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -78,7 +78,6 @@ class FG_eval {
     //
     // Setup Constraints
     //
-    // NOTE: In this section you'll setup the model constraints.
 
     // Initial constraints
     //
@@ -159,7 +158,6 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // Set the number of model variables (includes both states and inputs).
   // For example: If the state is a 4 element vector, the actuators is a 2
   // element vector and there are 10 timesteps. The number of variables is:
-  //
   // 4 * 10 + 2 * 9
   size_t n_vars = N * 6 + (N - 1) * 2;
   // Set the number of constraints
