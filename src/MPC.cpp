@@ -7,7 +7,7 @@ using CppAD::AD;
 
 // Set the timestep length and duration
 size_t N = 10;
-double dt = 0.01;
+double dt = 0.1;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -25,7 +25,7 @@ const double Lf = 2.67;
 // The reference velocity is set to 30 mph.
 double ref_cte = 0;
 double ref_epsi = 0;
-double ref_v = 30;
+double ref_v = 13.4; //30;  30 mph ~= 13.4 m/s
 
 // The solver takes all the state variables and actuator
 // variables in a singular vector. Thus, we should to establish
@@ -113,7 +113,7 @@ class FG_eval {
       AD<double> delta0 = vars[delta_start + i];
       AD<double> a0 = vars[a_start + i];
 
-      AD<double> f0 = coeffs[0] + coeffs[1] * x0;
+      AD<double> f0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * x0 * x0 + coeffs[3] * x0 * x0 * x0;
       AD<double> psides0 = CppAD::atan(coeffs[1]);
 
       // Here's `x` to get you started.
