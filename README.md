@@ -36,7 +36,7 @@ lecture).
 
 ### Timestep Length and Elapsed Duration (N & dt)
 
-I found the first working model (i.e. car made it around the track) with N=10 and dt = 0.02. Generally I experienced that my solution is very feeble when changing N.  E.g. N=20 results in a very wobbly ride.  The smoothest ride I got by setting **N=10** and **dt=0.01**.  This makes the green line in the simulator so short that it is almost entirely hidden by the car.  I don't think this is an issue though.
+I found the first working model (i.e. car made it around the track) with N=10 and dt = 0.02. Generally I experienced that my solution is very feeble when changing N.  E.g. N=20 results in a very wobbly ride.  After working in the comments of the reviewer and fixing some smaller bugs, I found that setting **N=15** and **dt=0.1** gives a nicely smooth ride.
 
 ### Polynomial Fitting and MPC Preprocessing
 
